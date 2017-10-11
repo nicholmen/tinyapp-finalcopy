@@ -10,7 +10,7 @@
         <h1>URLs_index</h1>
         <ul><% for(var url in urls){ %>
             <li>
-                <form method="POST" action="/urls/<%= url% >/delete">
+                <form method="POST" action="/urls/<%= url %>/delete">
                 <%= url %> --------- <%= urls[url] %> <input type="submit" value="Delete">
                 </form>
             </li>
