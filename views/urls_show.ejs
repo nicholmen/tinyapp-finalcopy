@@ -8,9 +8,10 @@
     </header>
     <body>
         <h2>Short URL: <%= shortURL %></p>
-        <form action="/urls" method="POST">
+        <form action="/urls/<%= shortURL %>/edit" method="POST">
         <input id="longURL" type="text" name="longURL" placeholder="<%= longURL %>" style="width: 300px">
         <input type="submit" value="Re-Submit">
     </form>
+    <a href = '/urls'>Back to URLs</a>
     </body>
 </html>

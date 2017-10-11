@@ -51,7 +51,7 @@ app.get("/urls/new", (req, res) => {
 
 
 
-//get this esplained
+// ceating new urls
 app.post("/urls", (req, res) => { 
     let longURL = req.body.longURL
     let shortURL = randomString();
@@ -61,9 +61,16 @@ app.post("/urls", (req, res) => {
     res.redirect("urls/" + shortURL); 
 });
 
+app.post('/urls/:id/edit', (req, res) =>{
+    let shortURL = req.params.id;
+    let longURL = req.body.longURL
+    urlDatabase[shortURL] = longURL;
+    res.redirect("/urls/" + shortURL);
+});
+
+// removing existing urls, by id
 app.post("/urls/:id/delete", (req, res) => {
     let shortURL = req.params.id;
-    console.log(shortURL);
     delete urlDatabase[shortURL];
     res.redirect("/urls");
 });
