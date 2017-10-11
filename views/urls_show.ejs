@@ -7,8 +7,10 @@
         <% include ./partials/_header %>
     </header>
     <body>
-        <h1>URL_shows</h1>
-        <p><%= shortURL %></p>
-        <p><%= longURL %></p>
+        <h2>Short URL: <%= shortURL %></p>
+        <form action="/urls" method="POST">
+        <input id="longURL" type="text" name="longURL" placeholder="<%= longURL %>" style="width: 300px">
+        <input type="submit" value="Re-Submit">
+    </form>
     </body>
 </html>
