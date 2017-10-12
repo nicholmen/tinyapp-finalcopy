@@ -7,7 +7,6 @@
         <% include ./partials/_header %>
     </header>
     <body>
-        <h1>URLs_index</h1>
         <ul><% for(var url in urls){ %>
             <li>
                 <form method="POST" action="/urls/<%= url %>/delete">
