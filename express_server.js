@@ -111,17 +111,32 @@ app.post("/logout", (req, res) => {
     res.redirect("urls")
 });
 
-app.post('/register', (req, res) => {
-    let email = req.body.email;
-    let password = req.body.password;
-    let randomUserId = randomString();
-    usersDatabase[randomUserId] = {
-        id : randomUserId,
-        email : email,
-        password : password  
+function userExist(email){
+    for(let userId in usersDatabase) {
+        if (email === usersDatabase[userId].email){
+            return true
+        }
     }
-    res.cookie('user_id', randomUserId);
-    res.redirect('urls');
+}
+
+app.post('/register', (req, res) => {
+    const email = req.body.email.trim();
+    const password = req.body.password.trim();
+    //const {email, password} = req.body;
+    const randomUserId = randomString();
+    if(email === '' || password === ''){
+        res.status(400).send('you fucked up. enter an email *and* password.')
+    } else if (userExist(email)) {
+        res.status(400).send('you fucked up. email is already registered')
+    } else {
+        usersDatabase[randomUserId] = {
+            id : randomUserId,
+            email,
+            password  
+        }
+        res.cookie('user_id', randomUserId);
+        res.redirect('urls');
+    }
 });
 
   app.listen(PORT, () => {
