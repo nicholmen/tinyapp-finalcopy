@@ -84,6 +84,10 @@ app.get("/urls/:id", (req, res) => {
     res.redirect(longURL);
   });
 
+app.get("/register", (req, res) => {
+    res.render("register")
+});
+
 app.post("/login", (req, res) => {
     let user = req.body.username;
     res.cookie("username", user);
