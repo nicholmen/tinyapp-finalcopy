@@ -10,14 +10,14 @@ app.use(cookieparser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-function populateLocals(req, res, next) {
-    const username = req.cookies.username;
-    res.locals.username = username;
-    res.locals.urls = urlDatabase;
-    next();
-}
+// function populateLocals(req, res, next) {
+//     const username = req.cookies.username;
+//     res.locals.username = username;
+//     res.locals.urls = urlDatabase;
+//     next();
+// }
 
-app.use(populateLocals);
+// app.use(populateLocals);
 
 
 function randomString() {
@@ -54,14 +54,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    // let templateVars = {
-    //     username: req.cookies["username"],
-    //   };
-    res.render("urls_index", );
+     let templateVars = {
+         username: req.cookies["username"],
+         urls: urlDatabase
+       };
+    res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-    res.render("urls_new");
+    let templateVars = {
+        username: req.cookies["username"],
+      };
+    res.render("urls_new", templateVars);
 });
 
 // ceating new urls
@@ -90,7 +94,10 @@ app.get("/urls/:id", (req, res) => {
     const shortURL = req.params.id;
     const longURL = urlDatabase[shortURL];
 
-    let templateVars = { shortURL, longURL };
+    let templateVars = { 
+        shortURL, 
+        longURL, 
+        username: req.cookies["username"] };
     res.render("urls_show", templateVars);
   });
 
