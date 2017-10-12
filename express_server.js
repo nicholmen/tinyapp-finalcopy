@@ -50,11 +50,14 @@ const usersDatabase = {
   }
 
 app.get("/", (req, res) => {
-    res.end("Hello");
+    res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
-    res.render("urls_index");
+    // let templateVars = {
+    //     username: req.cookies["username"],
+    //   };
+    res.render("urls_index", );
 });
 
 app.get("/urls/new", (req, res) => {
@@ -97,7 +100,11 @@ app.get("/urls/:id", (req, res) => {
   });
 
 app.get("/register", (req, res) => {
-    res.render("register")
+    res.render("register");
+});
+
+app.get("/login", (req, res) => {
+    res.render("login");
 });
 
 app.post("/login", (req, res) => {
@@ -118,6 +125,20 @@ function userExist(email){
         }
     }
 }
+
+// function registerNewUser(email, password){
+//     const randomUserId = randomString();
+//     if(email === '' || password === ''){
+//         res.status(400).send('you fucked up. enter an email *and* password.')
+//     } else if (userExist(email)) {
+//         res.status(400).send('you fucked up. email is already registered')
+//     } else {
+//         usersDatabase[randomUserId] = {
+//             id : randomUserId,
+//             email,
+//             password  
+//         }
+// }
 
 app.post('/register', (req, res) => {
     const email = req.body.email.trim();
