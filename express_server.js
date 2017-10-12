@@ -56,9 +56,7 @@ app.post("/urls", (req, res) => {
     let longURL = req.body.longURL
     let shortURL = randomString();
     urlDatabase[shortURL] = longURL;
-    //res.send('this will be a redirect to the long url')
-    //TODO redirect
-    res.redirect("urls/" + shortURL); 
+    res.redirect("urls/" + shortURL);
 });
 
 app.post('/urls/:id/edit', (req, res) =>{
