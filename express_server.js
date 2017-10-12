@@ -4,12 +4,21 @@ var PORT = process.env.PORT || 8080;
 
 app.set('view engine','ejs');
 
+var cookieparser = require('cookie-parser');
+app.use(cookieparser());
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-function routeHandler(req, res){
-
+function populateLocals(req, res, next) {
+    const username = req.cookies.username;
+    res.locals.username = username;
+    res.locals.urls = urlDatabase;
+    next();
 }
+
+app.use(populateLocals);
+
 
 function randomString() {
     var randomString = "";
@@ -32,23 +41,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    let templateVars = { urls: urlDatabase }
-    res.render("urls_index", templateVars);
+    res.render("urls_index");
 });
 
 app.get("/urls/new", (req, res) => {
     res.render("urls_new");
 });
-
-// GET /notes/
-// GET /notes/new
-// POST/PUT /notes/
-// GET /notes/noteId
-// POST/PUT /notes/noteId
-// DELETE /notes/noteId
-
-// BREAD
-
 
 
 // ceating new urls
@@ -81,20 +79,22 @@ app.get("/urls/:id", (req, res) => {
     res.render("urls_show", templateVars);
   });
 
-  // are these the same???^v
-
   app.get("/u/:shortURL", (req, res) => {
     let longURL = urlDatabase[req.params.shortURL]
     res.redirect(longURL);
   });
 
+app.post("/login", (req, res) => {
+    let user = req.body.username;
+    res.cookie("username", user);
+    res.redirect("urls");
+});
+
+app.post("/logout", (req, res) => {
+    res.clearCookie('username');
+    res.redirect("urls")
+});
+
   app.listen(PORT, () => {
     console.log(`TinyApp server listening on port ${PORT}!`);
 });
-
-
-  // DOn't think I need this
-// app.get("/urls.json", (req, res) => {
-//     res.json(urlDatabase);
-//   });
-
