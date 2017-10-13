@@ -10,6 +10,9 @@ app.use(cookieparser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+// why do we not have to say app.use(bcrypt())???
+const bcrypt = require('bcrypt');
+
 
 function randomString() {
     var randomString = "";
@@ -45,7 +48,7 @@ function registerNewUser(email, password, res){
         usersDatabase[randomUserId] = {
             id : randomUserId,
             email,
-            password  
+            hashedPassword : bcrypt.hashSync(password, 10)  
         }
         res.cookie('user_id', randomUserId);
         res.redirect('urls');
@@ -182,7 +185,7 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 function checkPassword(userId, password){
-    if(password === usersDatabase[userId].password){return true}
+    return bcrypt.compareSync(password, usersDatabase[userId].hashedPassword);
 }
 app.post('/login', (req, res) => {
     const email = req.body.email;
@@ -207,6 +210,7 @@ app.post('/register', (req, res) => {
     const password = req.body.password.trim();
     //const {email, password} = req.body;
     registerNewUser(email, password, res);
+    console.log(usersDatabase);
 });
 
   app.listen(PORT, () => {
