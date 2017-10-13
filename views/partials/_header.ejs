@@ -5,6 +5,7 @@
             <input id="login" type="email" name="email" placeholder="Email"> 
             <button type="submit">Login to my shitty web app</button>
         </form>
+        <p><a href = '/register'>Register</a><p>
     <% } else { %>
         Hello, <%= user.email %>
         <form action="/logout" method="POST">

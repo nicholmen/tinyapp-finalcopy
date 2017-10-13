@@ -21,6 +21,36 @@ function randomString() {
     return randomString;
   }
 
+function getUserByEmail(email){
+    for(let userId in usersDatabase) {
+        if (email === usersDatabase[userId].email){
+            return userId;
+        }
+    }
+}
+
+function getUserById(userId){
+    return usersDatabase[userId];
+}
+
+
+
+function registerNewUser(email, password, res){
+    const randomUserId = randomString();
+    if(email === '' || password === ''){
+        res.status(400).send('you fucked up. enter an email *and* password.')
+    } else if (getUserByEmail(email)) {
+        res.status(400).send('you fucked up. email is already registered')
+    } else {
+        usersDatabase[randomUserId] = {
+            id : randomUserId,
+            email,
+            password  
+        }
+        res.cookie('user_id', randomUserId);
+        res.redirect('urls');
+    }
+}
 
 const urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
@@ -53,10 +83,15 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-    let templateVars = {
+    const userId = req.cookies["user_id"];
+    const templateVars = {
         user: usersDatabase[req.cookies["user_id"]],
       };
-    res.render("urls_new", templateVars);
+    if (getUserById(userId)){
+        res.render("urls_new", templateVars);
+    } else {
+        res.redirect('/login');
+    }
 });
 
 // ceating new urls
@@ -105,15 +140,6 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-
-function getUserByEmail(email){
-    for(let userId in usersDatabase) {
-        if (email === usersDatabase[userId].email){
-            return userId;
-        }
-    }
-}
-
 app.post('/login', (req, res) => {
     const email = req.body.email;
     const userId = getUserByEmail(email);
@@ -130,46 +156,11 @@ app.post('/logout', (req, res) => {
     res.redirect('urls');
 });
 
-function userExist(email){
-    for(let userId in usersDatabase) {
-        if (email === usersDatabase[userId].email){
-            return true
-        }
-    }
-}
-
-// function registerNewUser(email, password){
-//     const randomUserId = randomString();
-//     if(email === '' || password === ''){
-//         res.status(400).send('you fucked up. enter an email *and* password.')
-//     } else if (userExist(email)) {
-//         res.status(400).send('you fucked up. email is already registered')
-//     } else {
-//         usersDatabase[randomUserId] = {
-//             id : randomUserId,
-//             email,
-//             password  
-//         }
-// }
-
 app.post('/register', (req, res) => {
     const email = req.body.email.trim();
     const password = req.body.password.trim();
     //const {email, password} = req.body;
-    const randomUserId = randomString();
-    if(email === '' || password === ''){
-        res.status(400).send('you fucked up. enter an email *and* password.')
-    } else if (userExist(email)) {
-        res.status(400).send('you fucked up. email is already registered')
-    } else {
-        usersDatabase[randomUserId] = {
-            id : randomUserId,
-            email,
-            password  
-        }
-        res.cookie('user_id', randomUserId);
-        res.redirect('urls');
-    }
+    registerNewUser(email, password, res);
 });
 
   app.listen(PORT, () => {
