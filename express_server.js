@@ -51,8 +51,7 @@ function registerNewUser(email, password, res){
         res.redirect('urls');
     }
 }
-// "b2xVn2": "http://www.lighthouselabs.ca",
-// "9sm5xK": "http://www.google.com"
+
 const urlDatabase = {
         "b2xVn2": {
             userId: "userRandomId",
@@ -182,15 +181,19 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
     res.render("login");
 });
-
+function checkPassword(userId, password){
+    if(password === usersDatabase[userId].password){return true}
+}
 app.post('/login', (req, res) => {
     const email = req.body.email;
     const userId = getUserByEmail(email);
-    if(userId) {
+    const password = req.body.password;
+    const authenticated = checkPassword(userId, password);
+    if(userId && authenticated) {
         res.cookie('user_id', userId);
         res.redirect('urls');
     } else {
-        res.status(403).send('Only jocks and nerds try to login without registering');
+        res.status(403).send('You fucked up');
     }
 });
 
