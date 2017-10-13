@@ -4,8 +4,13 @@ var PORT = process.env.PORT || 8080;
 
 app.set('view engine','ejs');
 
-var cookieparser = require('cookie-parser');
-app.use(cookieparser());
+// var cookieparser = require('cookie-parser');
+// app.use(cookieparser());
+var cookieSession = require('cookie-session');
+app.use(cookieSession({
+    name: 'session',
+    keys: ['combinationlock']
+}));
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -38,7 +43,7 @@ function getUserById(userId){
 
 
 
-function registerNewUser(email, password, res){
+function registerNewUser(email, password){
     const randomUserId = randomString();
     if(email === '' || password === ''){
         res.status(400).send('you fucked up. enter an email *and* password.')
@@ -50,9 +55,8 @@ function registerNewUser(email, password, res){
             email,
             hashedPassword : bcrypt.hashSync(password, 10)  
         }
-        res.cookie('user_id', randomUserId);
-        res.redirect('urls');
     }
+    return randomUserId;
 }
 
 const urlDatabase = {
@@ -96,9 +100,9 @@ function urlsForUser(id){
 }
 
 app.get("/urls", (req, res) => {
-    const id = req.cookies['user_id']; 
+    const id = req.session['user_id']; 
     const templateVars = {
-         user: usersDatabase[req.cookies["user_id"]],
+         user: usersDatabase[req.session["user_id"]],
          //urls: urlDatabase
          urls: urlsForUser(id)
     }
@@ -110,9 +114,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-    const userId = req.cookies["user_id"];
+    const userId = req.session["user_id"];
     const templateVars = {
-        user: usersDatabase[req.cookies["user_id"]],
+        user: usersDatabase[req.session["user_id"]],
       };
     if (getUserById(userId)){
         res.render("urls_new", templateVars);
@@ -125,7 +129,7 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => { 
     const longURL = req.body.longURL
     const shortURL = randomString();
-    const userId = req.cookies['user_id']
+    const userId = req.session['user_id']
     urlDatabase[shortURL] = { userId: userId, longURL: longURL };
     res.redirect("urls/" + shortURL);
 });
@@ -133,7 +137,7 @@ app.post("/urls", (req, res) => {
 app.post('/urls/:id/edit', (req, res) =>{
     const shortURL = req.params.id;
     const longURL = req.body.longURL
-    const userId = req.cookies["user_id"]
+    const userId = req.session["user_id"]
     console.log(urlDatabase);
     if(userId === urlDatabase[shortURL].userId){
         urlDatabase[shortURL] = { userId: userId, longURL: longURL };
@@ -147,7 +151,7 @@ app.post('/urls/:id/edit', (req, res) =>{
 // removing existing urls, by id
 app.post("/urls/:id/delete", (req, res) => {
     const shortURL = req.params.id;
-    const userId = req.cookies["user_id"]
+    const userId = req.session["user_id"]
     if(userId === urlDatabase[shortURL].userId){
         delete urlDatabase[shortURL];
         res.redirect("/urls");
@@ -162,9 +166,9 @@ app.get("/urls/:id", (req, res) => {
     const templateVars = { 
         shortURL, 
         longURL, 
-        user: usersDatabase[req.cookies['user_id']] };
+        user: usersDatabase[req.session['user_id']] };
 
-    if(urlDatabase[shortURL].userId === req.cookies['user_id']){ 
+    if(urlDatabase[shortURL].userId === req.session['user_id']){ 
         res.render("urls_show", templateVars);
     } else {
         res.send('login dumbass');
@@ -193,7 +197,7 @@ app.post('/login', (req, res) => {
     const password = req.body.password;
     const authenticated = checkPassword(userId, password);
     if(userId && authenticated) {
-        res.cookie('user_id', userId);
+        req.session.user_id = userId;
         res.redirect('urls');
     } else {
         res.status(403).send('You fucked up');
@@ -201,16 +205,18 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-    res.clearCookie('user_id');
-    res.redirect('urls');
+    req.session = null;
+    res.redirect('/urls');
 });
 
 app.post('/register', (req, res) => {
     const email = req.body.email.trim();
     const password = req.body.password.trim();
     //const {email, password} = req.body;
-    registerNewUser(email, password, res);
-    console.log(usersDatabase);
+    const randomUserId = registerNewUser(email, password);
+
+    req.session.user_id = randomUserId;
+    res.redirect('/urls');
 });
 
   app.listen(PORT, () => {
