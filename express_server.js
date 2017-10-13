@@ -82,12 +82,29 @@ app.get("/", (req, res) => {
     res.redirect("/urls");
 });
 
+function urlsForUser(id){
+    const specificURLs = {}
+    for(let shortURL in urlDatabase){
+        const urlObj = urlDatabase[shortURL];
+        if(urlObj.userId === id) {
+            specificURLs[shortURL] = urlObj; 
+        }
+    }
+    return specificURLs;
+}
+
 app.get("/urls", (req, res) => {
-     let templateVars = {
+    const id = req.cookies['user_id']; 
+    const templateVars = {
          user: usersDatabase[req.cookies["user_id"]],
-         urls: urlDatabase
-       };
-    res.render("urls_index", templateVars);
+         //urls: urlDatabase
+         urls: urlsForUser(id)
+    }
+    if(!id) {
+        return res.redirect("/login");
+    } else {
+        res.render("urls_index", templateVars);
+    }
 });
 
 app.get("/urls/new", (req, res) => {
