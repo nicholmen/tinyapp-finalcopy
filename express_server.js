@@ -161,7 +161,12 @@ app.get("/urls/:id", (req, res) => {
         shortURL, 
         longURL, 
         user: usersDatabase[req.cookies['user_id']] };
-    res.render("urls_show", templateVars);
+
+    if(urlDatabase[shortURL].userId === req.cookies['user_id']){ 
+        res.render("urls_show", templateVars);
+    } else {
+        res.send('login dumbass');
+    }
   });
 
   app.get("/u/:shortURL", (req, res) => {
