@@ -1,12 +1,14 @@
 <h1>Long URLs are for jocks and nerds</h1>
-<form action="/<%= username ? 'logout': 'login' %>" method="POST">
 <h2>
-    <% if (!username) { %>
-        <input id="login" type="text" name="username" placeholder="username"> 
-        <button type="submit">Login</button>
+    <% if (user === undefined) { %>
+        <form action="/login" method="POST">
+            <input id="login" type="email" name="email" placeholder="Email"> 
+            <button type="submit">Login to my shitty web app</button>
+        </form>
     <% } else { %>
-        Hello, <%= username %>
-        <button type="submit">Logout</button>
+        Hello, <%= user.email %>
+        <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+        </form>
     <% } %>
 </h2>
-</form>

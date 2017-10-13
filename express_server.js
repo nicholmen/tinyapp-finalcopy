@@ -10,15 +10,6 @@ app.use(cookieparser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-// function populateLocals(req, res, next) {
-//     const username = req.cookies.username;
-//     res.locals.username = username;
-//     res.locals.urls = urlDatabase;
-//     next();
-// }
-
-// app.use(populateLocals);
-
 
 function randomString() {
     var randomString = "";
@@ -55,7 +46,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
      let templateVars = {
-         username: req.cookies["username"],
+         user: usersDatabase[req.cookies["user_id"]],
          urls: urlDatabase
        };
     res.render("urls_index", templateVars);
@@ -63,7 +54,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
     let templateVars = {
-        username: req.cookies["username"],
+        user: usersDatabase[req.cookies["user_id"]],
       };
     res.render("urls_new", templateVars);
 });
@@ -97,7 +88,7 @@ app.get("/urls/:id", (req, res) => {
     let templateVars = { 
         shortURL, 
         longURL, 
-        username: req.cookies["username"] };
+        user: usersDatabase[req.cookies["user_id"]] };
     res.render("urls_show", templateVars);
   });
 
@@ -114,15 +105,29 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-app.post("/login", (req, res) => {
-    let user = req.body.username;
-    res.cookie("username", user);
-    res.redirect("urls");
+
+function getUserByEmail(email){
+    for(let userId in usersDatabase) {
+        if (email === usersDatabase[userId].email){
+            return userId;
+        }
+    }
+}
+
+app.post('/login', (req, res) => {
+    const email = req.body.email;
+    const userId = getUserByEmail(email);
+    if(userId) {
+        res.cookie('user_id', userId);
+        res.redirect('urls');
+    } else {
+        res.status(403).send('Only jocks and nerds try to login without registering');
+    }
 });
 
-app.post("/logout", (req, res) => {
-    res.clearCookie('username');
-    res.redirect("urls")
+app.post('/logout', (req, res) => {
+    res.clearCookie('user_id');
+    res.redirect('urls');
 });
 
 function userExist(email){
