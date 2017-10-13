@@ -114,24 +114,27 @@ app.post("/urls", (req, res) => {
 app.post('/urls/:id/edit', (req, res) =>{
     const shortURL = req.params.id;
     const longURL = req.body.longURL
-    urlDatabase[shortURL] = longURL;
-    res.redirect("/urls/" + shortURL);
+    const userId = req.cookies["user_id"]
+    console.log(urlDatabase);
+    if(userId === urlDatabase[shortURL].userId){
+        urlDatabase[shortURL] = { userId: userId, longURL: longURL };
+        res.redirect("/urls");
+    } else {
+        res.status(401).send('stop trying to edit other people\'s shit, you shit')
+    }
+    console.log(urlDatabase);
 });
 
 // removing existing urls, by id
 app.post("/urls/:id/delete", (req, res) => {
     const shortURL = req.params.id;
     const userId = req.cookies["user_id"]
-    console.log(shortURL);
-    console.log(userId);
-    console.log("shortURL.userId:", urlDatabase[shortURL].userId)
     if(userId === urlDatabase[shortURL].userId){
         delete urlDatabase[shortURL];
         res.redirect("/urls");
     } else {
         res.status(401).send('stop trying to delete other people\'s shit, you shit')
     }
-    
 });
 
 app.get("/urls/:id", (req, res) => {
