@@ -45,16 +45,10 @@ function getUserById(userId){
 
 function registerNewUser(email, password){
     const randomUserId = randomString();
-    if(email === '' || password === ''){
-        res.status(400).send('you fucked up. enter an email *and* password.')
-    } else if (getUserByEmail(email)) {
-        res.status(400).send('you fucked up. email is already registered')
-    } else {
-        usersDatabase[randomUserId] = {
-            id : randomUserId,
-            email,
-            hashedPassword : bcrypt.hashSync(password, 10)  
-        }
+    usersDatabase[randomUserId] = {
+        id : randomUserId,
+        email,
+        hashedPassword : bcrypt.hashSync(password, 10)  
     }
     return randomUserId;
 }
@@ -108,7 +102,7 @@ app.get("/urls", (req, res) => {
     if(id) {
         res.render("urls_index", templateVars);
     } else {
-        return res.redirect("/login");
+        return res.status(403).send('403 Forbidden, not logged in');
     }
 });
 
@@ -147,7 +141,7 @@ app.post('/urls/:id/edit', (req, res) =>{
     console.log(urlDatabase);
 });
 
-// removing existing urls, by id
+
 app.post("/urls/:id/delete", (req, res) => {
     const shortURL = req.params.id;
     const userId = req.session["user_id"]
@@ -161,40 +155,57 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
     const shortURL = req.params.id;
+    if(urlDatabase[shortURL] === undefined){
+        return res.status(404).send('This TinyURL does not exist');
+    }
     const longURL = urlDatabase[shortURL].longURL;
     const templateVars = { 
         shortURL, 
         longURL, 
         user: usersDatabase[req.session['user_id']] };
-
     if(urlDatabase[shortURL].userId === req.session['user_id']){ 
         res.render("urls_show", templateVars);
     } else {
-        res.send('login dumbass');
+        res.status(403).send('This is not your TinyURL, please login/register');
     }
   });
 
-  app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
+    if(urlDatabase[req.params.shortURL] === undefined){
+        return res.status(404).send('Tiny URL does not exist...Until Someone makes it! That could be YOU!');
+    }
     let longURL = urlDatabase[req.params.shortURL].longURL
-    console.log(urlDatabase[req.params.shortURL].longURL);
-    res.redirect(longURL);
-  });
+    return res.redirect(longURL);
+});
 
 app.get("/register", (req, res) => {
-    res.render("register");
+    const templateVars = {
+        user: usersDatabase[req.session["user_id"]],
+    }; 
+    res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-    res.render("login");
+    const userId = req.session["user_id"]
+    const templateVars = {
+        user: usersDatabase[req.session.email],
+    }; 
+    if(userId){
+        res.redirect("/urls")
+    }
+    res.render("login", templateVars);
 });
 function checkPassword(userId, password){
-    if(usersDatabase[userId].hashedPassword){ bcrypt.compareSync(password, usersDatabase[userId].hashedPassword) };
+    if(getUserById(userId) && usersDatabase[userId].hashedPassword){ 
+        return bcrypt.compareSync(password, usersDatabase[userId].hashedPassword) 
+    };
 }
 app.post('/login', (req, res) => {
     const email = req.body.email;
     const userId = getUserByEmail(email);
     const password = req.body.password;
     const authenticated = checkPassword(userId, password);
+    
     if(userId && authenticated) {
         req.session.user_id = userId;
         res.redirect('urls');
@@ -205,17 +216,28 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
     req.session = null;
-    res.redirect('/urls');
+    res.redirect('/login');
 });
 
 app.post('/register', (req, res) => {
     const email = req.body.email.trim();
     const password = req.body.password.trim();
     //const {email, password} = req.body;
-    const randomUserId = registerNewUser(email, password);
+    // if(password.length < 4 || password.length > 129){
+    //     res.status(400).send('Please choose a password between 4 and 128 characters');
+    // } else {
 
-    req.session.user_id = randomUserId;
-    res.redirect('/urls');
+
+    if(email === '' || password === ''){
+        res.status(400).send('you fucked up. enter an email *and* password.')
+    } else if(getUserByEmail(email)) {
+        return res.status(400).send('Email is already registered')
+    } else {
+        const randomUserId = registerNewUser(email, password);
+        req.session.user_id = randomUserId;
+        res.redirect('/urls');
+    }
+    //}
 });
 
   app.listen(PORT, () => {

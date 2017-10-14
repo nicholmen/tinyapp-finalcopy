@@ -1,15 +1,23 @@
-<h1>Long URLs are for jocks and nerds</h1>
-<h2>
+<h1>TinyApp</h1>
+<body>
     <% if (user === undefined) { %>
-        <form action="/login" method="POST">
-            <input id="login" type="email" name="email" placeholder="Email"> 
-            <button type="submit">Login to my shitty web app</button>
-        </form>
-        <p><a href = '/register'>Register</a><p>
+        <p>
+            Login
+            <form action="/login" method="POST">
+                <label for='email'>Email</label>
+                <input type='email' name='email'></input>
+                <label for='password'>Password</label>
+                <input type='password' name='password'></input>
+                <button type="submit">Login</button>
+            </form>
+        </p>
+        <!-- <p><a href = '/register'>Register</a><p> -->
     <% } else { %>
-        Hello, <%= user.email %>
-        <form action="/logout" method="POST">
-            <button type="submit">Logout</button>
-        </form>
+        <h4>
+            Hello, <%= user.email %>
+            <form action="/logout" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+        </h4>
     <% } %>
-</h2>
+</body>
