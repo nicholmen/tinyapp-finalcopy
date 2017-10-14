@@ -79,7 +79,7 @@ app.get("/urls", (req, res) => {
          urls: urlsForUser(id)
     };
     if(id) {
-        return res.render("urls_index", templateVars);
+        res.render("urls_index", templateVars);
     } else {
         return res.status(403).send('403 Forbidden, not logged in');
     }
@@ -141,7 +141,7 @@ app.get("/urls/:id", (req, res) => {
         user: usersDatabase[req.session['user_id']]
     };
     if(urlDatabase[shortURL].userId === req.session['user_id']){ 
-        return res.render("urls_show", templateVars);
+        res.render("urls_show", templateVars);
     } else {
         return res.status(403).send('This is not your TinyURL, please login/register');
     }
@@ -168,7 +168,7 @@ app.get("/login", (req, res) => {
         user: usersDatabase[req.session.email],
     }; 
     if(userId){
-        return res.redirect("/urls");
+        res.redirect("/urls");
     }
         return res.render("login", templateVars);
 });
@@ -181,7 +181,7 @@ app.post('/login', (req, res) => {
     
     if(userId && authenticated) {
         req.session.user_id = userId;
-        return res.redirect('urls');
+        res.redirect('urls');
     } else {
         return res.status(403).send('Forbidden');
     }
