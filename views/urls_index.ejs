@@ -8,13 +8,11 @@
     </header>
     <body style="font-size:20px; padding:50px;">
         <ul><% for(var shortURL in urls){ %>
-            <li>
-                <form method="POST" action="/urls/<%= shortURL %>/delete" style="margin:150px;">
-                    <a href='/u/<%= shortURL %>'>http://localhost:8080/u/<%= shortURL %></a> -> <%= urls[shortURL].longURL %> 
-                    <a href = "/urls/<%= shortURL %>">Edit</a>
-                    <input type="submit" value="Delete">
-                </form>
-            </li>
+            <form method="POST" action="/urls/<%= shortURL %>/delete" style="margin:20px;">
+                <a href='/u/<%= shortURL %>'>http://localhost:8080/u/<%= shortURL %></a> -> <%= urls[shortURL].longURL %> 
+                <a href = "/urls/<%= shortURL %>">Edit</a>
+                <input type="submit" value="Delete">
+            </form>
         <% } %>
         </ul>
         <p><a href = '/urls/new'>Create a New Short Link</a><p>
