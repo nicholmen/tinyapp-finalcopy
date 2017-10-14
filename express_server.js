@@ -103,13 +103,12 @@ app.get("/urls", (req, res) => {
     const id = req.session['user_id']; 
     const templateVars = {
          user: usersDatabase[req.session["user_id"]],
-         //urls: urlDatabase
          urls: urlsForUser(id)
     }
-    if(!id) {
-        return res.redirect("/login");
-    } else {
+    if(id) {
         res.render("urls_index", templateVars);
+    } else {
+        return res.redirect("/login");
     }
 });
 
@@ -117,7 +116,7 @@ app.get("/urls/new", (req, res) => {
     const userId = req.session["user_id"];
     const templateVars = {
         user: usersDatabase[req.session["user_id"]],
-      };
+    };
     if (getUserById(userId)){
         res.render("urls_new", templateVars);
     } else {
@@ -189,7 +188,7 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 function checkPassword(userId, password){
-    return bcrypt.compareSync(password, usersDatabase[userId].hashedPassword);
+    if(usersDatabase[userId].hashedPassword){ bcrypt.compareSync(password, usersDatabase[userId].hashedPassword) };
 }
 app.post('/login', (req, res) => {
     const email = req.body.email;
@@ -200,7 +199,7 @@ app.post('/login', (req, res) => {
         req.session.user_id = userId;
         res.redirect('urls');
     } else {
-        res.status(403).send('You fucked up');
+        res.status(403).send('Forbidden');
     }
 });
 
