@@ -1,12 +1,12 @@
 <h1>TinyApp</h1>
     <% if (user === undefined) { %>
-<h2>Login To TinyApp!</h2>
+<h2>Log in To TinyApp</h2>
 <form action='/login' method='POST'>
     <label for='email'>Email</label>
     <input type='email' name='email'></input>
     <label for='password'>Password</label>
     <input type='password' name='password'></input>
-    <button>Login!</button>
+    <button>Log in</button>
 </form>
 <h2>Register</h2>
 <form action='/register' method='POST'>
@@ -14,11 +14,11 @@
     <input type='email' name='email'></input>
     <label for='password'>Password</label>
     <input type='password' name='password'></input>
-    <button>Register!</button>
+    <button>Register</button>
 </form>
     <% } else { %>
 <h4>
-    Hello, <%= user.email %>
+    Welcome, <%= user.email %>
     <form action="/logout" method="POST">
         <button type="submit">Logout</button>
     </form>

@@ -9,7 +9,7 @@
     <body>
         <p>Short URL: <a href='/u/<%= shortURL %>'>http://www.localhost:8080/u/<%= shortURL %></a></p>
         <form action="/urls/<%= shortURL %>/edit" method="POST">
-            <p>Edit your link:</p>
+            <p>Edit your URL:</p>
         <input id="longURL" type="text" name="longURL" placeholder="<%= longURL %>" style="width: 300px">
         <input type="submit" value="Update">
     </form>
